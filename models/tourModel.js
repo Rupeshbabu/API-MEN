@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+// eslint-disable-next-line no-unused-vars
 const validator = require("validator");
 
 
