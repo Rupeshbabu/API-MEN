@@ -1,8 +1,8 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-unused-vars */
 const mongoose = require("mongoose");
 const slugify = require("slugify");
-// eslint-disable-next-line no-unused-vars
 const validator = require("validator");
+// const User = require("./userModel");
 
 
 const tourSchema = new mongoose.Schema({
@@ -79,7 +79,42 @@ const tourSchema = new mongoose.Schema({
     secretTour: {
       type: Boolean,
       default: false
-    }
+    },
+    startLocation : {
+      //GeoJSON
+      type: {
+        type:String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates:[Number],
+      address: String,
+      description: String
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ],
+    // guides: Array
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+      }
+    ],
+    // reviews : {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'review'
+    // }
   }, {
     toJSON:{ virtuals: true},
     toObject:{ virtuals: true}
@@ -90,12 +125,27 @@ const tourSchema = new mongoose.Schema({
   tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
   });
+
+  //Virtual populate 
+  tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField:'_id'
+  });
   
   //DOCUMENT MIDDLEWARE: run before .save() and .create()
   tourSchema.pre('save', function(next) {
     this.slug = slugify(this.name, { lower: true });
     next();
   });
+
+  // ! if guides: Array, to insert guides fields is _id send in postman. it will save entire data from that _id
+  // tourSchema.pre('save', async function(next) {
+  //   const guidesPromise = this.guides.map(async id => await User.findById(id));
+  //     this.guides = await Promise.all(guidesPromise);
+  //   next();
+  // });
+
 
   // tourSchema.pre('save', function(next) {
   //   console.log('Will save documents');
@@ -119,6 +169,15 @@ const tourSchema = new mongoose.Schema({
   //   this.find({ secretTour: { $ne: true } });
   //   next();
   // });
+
+  // ! to hide the fields (-__v -passwordChangedAt) in response
+  tourSchema.pre(/^find/, function(next){
+    this.populate({
+      path: 'guides',
+      select: '-__v -passwordChangedAt'
+    });
+    next();
+  });
 
   tourSchema.post(/^find/, function(docs, next) {
     console.log(`Query took ${Date.now() - this.start} milliseconds`);

@@ -104,7 +104,11 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
 exports.getTour = async (req, res, next) => {
   try {
-    const tour = await Tour.findById(req.params.id);
+    // ! User Create Guides in Tour, passing just ID. so, if we using populate('guides'), to display entire information of that ID. 
+    // const tour = await Tour.findById(req.params.id).populate('guides');
+
+    const tour = await Tour.findById(req.params.id).populate('reviews');
+
 
    //if id not the list. just see 404 error
     // if(!tour){

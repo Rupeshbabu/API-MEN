@@ -64,3 +64,12 @@ for node debug package:
 ===========================================================
 Email Sending using mailtrap.io
  => https://mailtrap.io
+=========================================================
+npm i express-rate-limit // to call api limit in same IP
+npm i helmet
+================================
+REDUCE noSQL Injection
+    ex: { "email" : {"$gt": ""}, password: "" }
+ - npm i express-mongo-sanitize
+
+===================================================
