@@ -57,3 +57,10 @@
     // console.log(req.query, queryObj);
    
 ================================================================
+
+for node debug package:
+    npm i ndb --global
+
+===========================================================
+Email Sending using mailtrap.io
+ => https://mailtrap.io

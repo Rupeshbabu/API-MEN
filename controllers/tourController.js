@@ -1,6 +1,8 @@
 // const fs = require('fs');
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
+// const AppError = require('../utils/appError');
+const catchAsync  = require('../utils/catchAsync');
 
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
@@ -62,21 +64,26 @@ exports.getAllTours = async (req, res) => {
   }
 };
 
-exports.createTour = async (req, res) => {
-  try {
-    const newTour = await Tour.create(req.body);
+// catchAsync is a reduce try catch block
+exports.createTour = catchAsync(async (req, res, next) => {
+  
+  const newTour = await Tour.create(req.body);
     res.status(201).json({
       status: 'success',
       data: {
         tour: newTour,
       },
     });
-  } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: error,
-    });
-  }
+  
+  
+  // try {
+    
+  // } catch (error) {
+  //   res.status(400).json({
+  //     status: 'fail',
+  //     message: error,
+  //   });
+  // }
   // console.log(req.body);
   // const newId = tours[tours.length - 1].id + 1;
   // const newTour = Object.assign({ id: newId }, req.body);
@@ -93,11 +100,17 @@ exports.createTour = async (req, res) => {
 
   // const newTour = new Tour({});
   // newTour.save();
-};
+});
 
-exports.getTour = async (req, res) => {
+exports.getTour = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id);
+
+   //if id not the list. just see 404 error
+    // if(!tour){
+    //   next(new AppError('No tour found with that id', '404'));
+    // }
+
     //Tour.findOne({_id: req.params.id});
     res.status(200).json({
       status: 'success',
