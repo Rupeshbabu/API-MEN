@@ -3,6 +3,7 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 // const AppError = require('../utils/appError');
 const catchAsync  = require('../utils/catchAsync');
+const factory= require('./handlerFactory');
 
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
@@ -150,20 +151,28 @@ exports.updateTour = async (req, res) => {
   }
 };
 
-exports.deleteTour = async (req, res) => {
-  try {
-    await Tour.findByIdAndDelete(req.params.id);
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: 'fail',
-      message: error,
-    });
-  }
-};
+exports.deleteTour = factory.deleteOne(Tour);
+
+// exports.deleteTour = async (req, res) => {
+//   try {
+//     const tour = await Tour.findByIdAndDelete(req.params.id);
+//     if(!tour){
+//       return res.status(404).json({
+//         status: 'fail',
+//         message: 'No tour found with that ID'
+//       });
+//     }
+//     res.status(204).json({
+//       status: 'success',
+//       data: null,
+//     });
+//   } catch (error) {
+//     res.status(404).json({
+//       status: 'fail',
+//       message: error,
+//     });
+//   }
+// };
 
 
 exports.getTourStats = async (req, res) =>{

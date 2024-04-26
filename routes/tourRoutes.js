@@ -10,7 +10,7 @@ const {
   getMonthlyPlan,
 } = require('../controllers/tourController');
 const { protect, restrictTo } = require('../controllers/authController');
-const { createReview } = require('../controllers/reviewController');
+const reviewRoutes = require('./reviewRoutes');
 
 const router = express.Router();
 
@@ -21,6 +21,8 @@ const router = express.Router();
 //If not, send back 400 (bad request)
 //Add it to the post handler stack
 
+router.use('/:tourId/reviews', reviewRoutes)
+
 router.route('/top').get(aliasTopTours, getAllTours);
 
 router.route('/tour-stats').get(getTourStats);
@@ -30,7 +32,7 @@ router.route('/').get(protect, getAllTours).post(createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 // Nested route
-router.route('/:tourId/reviews').post(protect, restrictTo('user'), createReview);
+// router.route('/:tourId/reviews').post(protect, restrictTo('user'), createReview);
 
 
 module.exports = router;
