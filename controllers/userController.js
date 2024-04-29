@@ -12,6 +12,11 @@ const filterObj = (obj, ...allowFields) => {
   return newObj;
 };
 
+exports.getMe = (req, rs, next) => {
+  req.params.id = req.user.id;
+  next();
+}
+
 // exports.getAllUsers = catchAsync(async (req, res) => {
 //   const users = await User.find();
 

@@ -4,7 +4,9 @@ const { protect, restrictTo } = require('../controllers/authController');
 
 const router = express.Router({ mergeParams: true });
 
-router.route('/').get(getAllReviews).post(protect, restrictTo('user'), setTourUserIds, createReview);
+router.use(protect); //! only login user will add review. below routes it will apply middleware
 
-router.route('/:id').get(getReview).patch(updateReview).delete(deleteReview);
+router.route('/').get(getAllReviews).post(restrictTo('user'), setTourUserIds, createReview);
+
+router.route('/:id').get(getReview).patch(restrictTo('user', 'admin'), updateReview).delete(restrictTo('user', 'admin'), deleteReview);
 module.exports = router;
