@@ -37,4 +37,4 @@ process.on('uncaughtException', err => {
   server.close(() => {
     process.exit(1);
   });
-})
+});
