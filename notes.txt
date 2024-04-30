@@ -75,3 +75,7 @@ REDUCE noSQL Injection
 ===================================================
 
 git push https://github.com/Rupeshbabu/API-MEN.git
+
+==================================
+npm i multer => filter upload package
+npm i sharp => image resize package
