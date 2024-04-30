@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 // * review / rating / createdAt / ref to tour / ref to user
 
@@ -34,23 +35,70 @@ const reviewSchema = new mongoose.Schema(
   },
 );
 
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // ! Once call GET REVIEWS API, to display review details along with tour details and user details
-reviewSchema.pre(/^find/, function(next){
-    // this.populate({
-    //     path: 'tour',
-    //     select: 'name'
-    // }).populate({
-    //     path:'user',
-    //     select: 'name photo'
-    // });
+reviewSchema.pre(/^find/, function (next) {
+  // this.populate({
+  //     path: 'tour',
+  //     select: 'name'
+  // }).populate({
+  //     path:'user',
+  //     select: 'name photo'
+  // });
 
-    this.populate({
-        path:'user',
-        select: 'name photo'
-    });
+  this.populate({
+    path: 'user',
+    select: 'name photo'
+  });
 
-    next();
+  next();
 });
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId }
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgrating: { $avg: '$rating' }
+      }
+    }
+  ]);
+  console.log(stats);
+
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].nRating
+    });
+  } else {
+    Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5
+    });
+  }
+};
+
+reviewSchema.post('save', function (next) {
+  // this point to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.r = await this.findOne();
+  console.log(this.r);
+  next();
+});
+
+reviewSchema.pre(/^findOneAnd/, async function () {
+  //await this.findOne(); does NOT work here, query already excuted
+  await this.r.constructor.calcAverageRatings(this.r);
+});
+
 
 module.exports = mongoose.model('Review', reviewSchema);
 
